@@ -589,6 +589,13 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   // Top button returns to the watchface (user request).
+  // Freeze the display first (v2.7.35): the wobble, the fetch
+  // animation and the slide all keep redrawing during the pop
+  // otherwise, and their draws assume the window is at rest —
+  // the exit glitch. All three are safe no-ops when idle.
+  family_wobble_stop();
+  fetch_anim_stop();
+  family_slide_teardown();
   window_stack_pop(true);
 }
 
