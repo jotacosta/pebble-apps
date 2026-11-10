@@ -505,6 +505,10 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   // Top button returns to the watchface (user request).
+  // Stop the wobble first (v2.8.31): it keeps redrawing during
+  // the pop otherwise, and its draw assumes the window is at
+  // rest — the exit glitch (same fix as _weather 2.7.35).
+  family_wobble_stop();
   window_stack_pop(true);
 }
 
