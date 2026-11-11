@@ -738,9 +738,8 @@ static void canvas_update(Layer *layer, GContext *ctx) {
   render_rotated(fb, &f, with_date);
   graphics_release_frame_buffer(ctx, fb);
 
-  // 4. Ecken-Marken (user): konkave Ecken in allen vier
-  // BildschirmeEcken — geteilte Implementierung in family.h.
-  family_earmarks(ctx, bounds, s_color_fg, s_color_bg);
+  // 4. Corner marks removed (user, v1.4.22): the face no longer
+  // draws the earmarks — the apps keep theirs, the face is bare.
 
   // Dazu (v1.4.9) statt des Punkts aus v1.4.8 — der gefiel dem
   // user nicht — eine duenne, zentrierte Linie am unteren
