@@ -287,12 +287,8 @@ static void main_update_proc(Layer *layer, GContext *ctx) {
     draw_value(ctx, b, s_life);
   }
 
-  // Corner paint (user, v1.10.3): the shared family marks —
-  // black like the digits and markers, gated on the background
-  // being light (the shared rule, not a per-app override).
-  // Drawn after everything, including the reset-animation
-  // frames, so the corners stay painted throughout.
-  family_earmarks(ctx, b, GColorBlack, GColorWhite);
+  // Corner marks removed (user, v1.10.5): no earmarks on _life.
+  // The shared helper stays in family.h (kept).
 }
 
 static void window_load(Window *window) {
