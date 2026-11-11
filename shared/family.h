@@ -688,8 +688,20 @@ FAMILY_API static void family_earmarks(GContext *ctx, GRect bounds,
 
 FAMILY_API static AppTimer *s_family_exit_timer;
 
+// Pre-pop hook (v2.7.36/_weather, v2.8.32/_battery): the idle exit
+// pops the window just like the Up button does, so the app gets a
+// chance to tidy the display first (hide the corner marks) before
+// either pop. An app that needs it registers its hook; unset it is
+// a no-op and the pop is unchanged.
+FAMILY_API static void (*s_family_pre_pop_hook)(void) = NULL;
+
+FAMILY_API static void family_set_pre_pop_hook(void (*hook)(void)) {
+  s_family_pre_pop_hook = hook;
+}
+
 static void family_idle_cb(void *context) {
   s_family_exit_timer = NULL;
+  if (s_family_pre_pop_hook) s_family_pre_pop_hook();
   window_stack_pop(true);
 }
 

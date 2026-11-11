@@ -587,6 +587,15 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   request_update_forced(true);
 }
 
+// Hide the corner marks before the exit pop (v2.7.36): the QT layer
+// carries the corner marks (and the slide, already torn down), so
+// hiding it leaves a clean frame to slide off — the watchface's own
+// marks are then the only ones in the corners. window_appear shows
+// it again; the idle exit hides it through the family pre-pop hook.
+static void hide_marks_for_pop(void) {
+  if (s_qt_layer) layer_set_hidden(s_qt_layer, true);
+}
+
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   // Top button returns to the watchface (user request).
   // Freeze the display first (v2.7.35): the wobble, the fetch
@@ -596,6 +605,7 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   family_wobble_stop();
   fetch_anim_stop();
   family_slide_teardown();
+  hide_marks_for_pop();
   window_stack_pop(true);
 }
 
@@ -614,6 +624,7 @@ static void wobble_hook(int offset) {
 }
 
 static void window_appear(Window *window) {
+  if (s_qt_layer) layer_set_hidden(s_qt_layer, false);
   family_wobble_start(wobble_hook);
   family_idle_arm();
   // Ask the phone for fresh data every time the app comes to
@@ -768,6 +779,7 @@ static void init(void) {
   });
   window_set_click_config_provider(s_window, click_config_provider);
   window_stack_push(s_window, true);
+  family_set_pre_pop_hook(hide_marks_for_pop);
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
   app_message_register_inbox_received(inbox_received);

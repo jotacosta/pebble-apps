@@ -6,7 +6,7 @@ typeface. Author: Jota.
 
 | App | What it does | Version |
 | --- | --- | --- |
-| [_weather](_weather/) | Min/max temperature and precipitation for the day. Nothing else. | 2.7.35 |
+| [_weather](_weather/) | Min/max temperature and precipitation for the day. Nothing else. | 2.7.36 |
 | [_battery](_battery/) | Battery percentage as days remaining, learned from the watch's own drain. | 2.8.31 |
 | [_countdown](_countdown/) | A 45-minute countdown timer (adjustable), with a wakeup at zero. | 1.5.4 |
 | [_life](_life/) | Magic: The Gathering life counter, 20 to 0. | 1.10.4 |
