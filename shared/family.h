@@ -702,7 +702,9 @@ FAMILY_API static void family_set_pre_pop_hook(void (*hook)(void)) {
 static void family_idle_cb(void *context) {
   s_family_exit_timer = NULL;
   if (s_family_pre_pop_hook) s_family_pre_pop_hook();
-  window_stack_pop(true);
+  // Instant cut, no slide (user, 2026-11-11): the exit does not
+  // animate — the marks cannot flash while sliding if nothing slides.
+  window_stack_pop(false);
 }
 
 FAMILY_API static void family_idle_arm(void) {
