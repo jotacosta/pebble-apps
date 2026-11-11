@@ -1069,6 +1069,12 @@ static void start_fly(void) {
   // underneath it (v1.1.0/v1.1.1 — the user saw it only at face
   // start). The configured delay lets the flight begin once the
   // face is actually on screen.
+  // Redraw the face at once (v1.4.21): the canvas only redraws on
+  // the wobble's ticks, so until the delayed flight starts the
+  // face — corner marks included — sits on its last frame. Marking
+  // it dirty here renders the marks the moment the face comes back,
+  // and the flight still animates on its own delay.
+  if (s_canvas) layer_mark_dirty(s_canvas);
   family_wobble_configure(WOBBLE_AMP, s_anim_delay, s_wobble_len);
   family_wobble_start(fly_hook);
 }
