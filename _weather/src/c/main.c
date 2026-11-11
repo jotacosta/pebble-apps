@@ -682,8 +682,8 @@ static void fetch_anim_start(void) {
 }
 
 static void qt_update_proc(Layer *layer, GContext *ctx) {
-  family_earmarks(ctx, layer_get_bounds(layer), family_ink_color(),
-                     family_bg_color());
+  // Corner marks removed (user, v2.7.38): _weather no longer draws
+  // the earmarks. The button slide below is untouched.
   // Button slide (family helper): drawn last, topmost; ink-colored so it
   // reads in both day and night themes.
   family_slide_draw(ctx, layer_get_bounds(layer), family_ink_color());
