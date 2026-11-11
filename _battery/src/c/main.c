@@ -35,7 +35,6 @@ static Window *s_window;
 static GFont s_f83, s_f72, s_f68, s_f48, s_f56, s_f40;  // LECO 1976 (custom font)
 static GFont s_p32, s_p36, s_p34, s_p28, s_p24, s_p20;  // LECO 1976 %-only fonts at HALF the digit heights (user: full size was too large)
 static Layer *s_pct_layer;
-static Layer *s_corner_layer;
 // Appear wobble is the family engine (shared/family.h):
 // the two-line readout wobbles as a unit — the days number
 // splits around its decimal dot (left slides left, right
@@ -299,16 +298,8 @@ static void draw_days_big(GContext *ctx, GRect b) {
                      GTextOverflowModeFill, GTextAlignmentLeft, NULL);
 }
 
-// Corner marks on their own topmost layer (v2.8.32): the shared
-// family marks, light backgrounds only, nothing to do with Quiet
-// Time. They used to be painted inside pct_update_proc (v2.8.23);
-// their own layer lets the exit pop hide them (hide_marks_for_pop)
-// so the frame that slides off is clean — the watchface's own marks
-// are then the only ones in the corners.
-static void corner_update_proc(Layer *layer, GContext *ctx) {
-  family_earmarks(ctx, layer_get_bounds(layer), family_ink_color(),
-                  family_bg_color());
-}
+// Corner marks removed (user, v2.8.34): the corner layer is gone.
+// The shared family_earmarks helper stays in family.h (kept).
 
 static void pct_update_proc(Layer *layer, GContext *ctx) {
   GRect b = layer_get_bounds(layer);
@@ -507,22 +498,12 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   refresh_display();
 }
 
-// Hide the corner marks before the exit pop (v2.8.32): hiding the
-// corner layer leaves a clean frame to slide off — the watchface's
-// own marks are then the only ones in the corners. window_appear
-// shows it again; the idle exit hides it through the family
-// pre-pop hook.
-static void hide_marks_for_pop(void) {
-  if (s_corner_layer) layer_set_hidden(s_corner_layer, true);
-}
-
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   // Top button returns to the watchface (user request).
   // Stop the wobble first (v2.8.31): it keeps redrawing during
   // the pop otherwise, and its draw assumes the window is at
   // rest — the exit glitch (same fix as _weather 2.7.35).
   family_wobble_stop();
-  hide_marks_for_pop();
   // Instant cut, no slide (user, v2.8.33): the exit does not animate
   // — the marks cannot flash while sliding if nothing slides.
   window_stack_pop(false);
@@ -545,7 +526,6 @@ static void wobble_hook(int offset) {
 static void request_night(void);  // defined with the AppMessage code below
 
 static void window_appear(Window *window) {
-  if (s_corner_layer) layer_set_hidden(s_corner_layer, false);
   family_wobble_start(wobble_hook);
   family_idle_arm();
   // Ask the phone for fresh sunrise/sunset on every appear,
@@ -577,13 +557,6 @@ static void window_load(Window *window) {
   layer_set_update_proc(s_days_layer, days_update_proc);
   layer_add_child(root, s_days_layer);
 
-  // Corner marks on their own layer, above everything (v2.8.32):
-  // hiding just this layer on exit leaves a clean frame to slide
-  // off (see hide_marks_for_pop).
-  s_corner_layer = layer_create(GRect(0, 0, w, h));
-  layer_set_update_proc(s_corner_layer, corner_update_proc);
-  layer_add_child(root, s_corner_layer);
-
   sample_battery();
   refresh_display();
 }
@@ -591,7 +564,6 @@ static void window_load(Window *window) {
 static void window_unload(Window *window) {
   layer_destroy(s_pct_layer);
   layer_destroy(s_days_layer);
-  layer_destroy(s_corner_layer);
 }
 
 static void inbox_received(DictionaryIterator *iter, void *context) {
@@ -644,7 +616,6 @@ static void init(void) {
   });
   window_set_click_config_provider(s_window, click_config_provider);
   window_stack_push(s_window, true);
-  family_set_pre_pop_hook(hide_marks_for_pop);
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   battery_state_service_subscribe(battery_handler);
   app_message_register_inbox_received(inbox_received);
