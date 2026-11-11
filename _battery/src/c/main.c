@@ -523,7 +523,9 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   // rest — the exit glitch (same fix as _weather 2.7.35).
   family_wobble_stop();
   hide_marks_for_pop();
-  window_stack_pop(true);
+  // Instant cut, no slide (user, v2.8.33): the exit does not animate
+  // — the marks cannot flash while sliding if nothing slides.
+  window_stack_pop(false);
 }
 
 static void click_config_provider(void *context) {
